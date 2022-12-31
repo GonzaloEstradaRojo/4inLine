@@ -5,8 +5,8 @@ import logging
 logger = logging.getLogger()
 pygame.init()
 pygame.display.set_caption("4 en rayas")
-cols, rows = 5, 5
-width = 500
+cols, rows = 10, 6
+width = 800
 radioW = (width/cols)//2
 height = (1+rows)*radioW*2
 radioH = (height/(1+rows))//2
@@ -15,8 +15,7 @@ screen = pygame.display.set_mode((width,int(height)), pygame.RESIZABLE)
 board = [[0 for _ in range(cols)] for i in range(rows)]
 fontsizeGameOver = width//15
 fontsizeText = width//(3*10)
-widthFinalRect = width*0.5
-heightFinalRect = height*0.5
+widthFinalRect, heightFinalRect = width*0.5, height*0.5
 
 YELLOW, RED = 1, 2
 color, turn = YELLOW, YELLOW
@@ -25,7 +24,6 @@ run = True
 gameOver = False
 
 def ResetBoard():
-    # print("resetBoard")
     global board
     board = [[0 for _ in range(cols)] for _ in range(rows)]
 
@@ -33,13 +31,9 @@ def GetColumn(col):
     return [board[i][col] for i in range(rows)]
 
 def CheckFullBoard():
-    # print("checkFullBoard")
-    global board
-    print(f"Fullboard = {all([board[i][j] != 0 for j in range(cols) for i in range(rows)])}")
     return all([board[i][j] != 0 for j in range(cols) for i in range(rows)])
 
 def DrawBoard():
-    # print("drawBoard")
     for i in range(rows):
         for j in range(cols):
             if board[i][j]==0:
@@ -51,12 +45,10 @@ def DrawBoard():
 
 def CheckPygameExitAndResize(events):
     global run, fontsizeGameOver, fontsizeText, radioW, radioH, widthFinalRect, heightFinalRect
-    # print("checkPygameEvents")
     
     for event in events:
         if event.type == pygame.QUIT:
             run = False
-            # gameOver = True
         
         if event.type == pygame.VIDEORESIZE:
             width = event.w
@@ -71,14 +63,12 @@ def CheckPygameExitAndResize(events):
 
 def GetColumnOfMouse():
     global radioW
-    # print("getColumnOfMouse")
 
     mouse = pygame.mouse.get_pos()
     mouseX = mouse[0]
     return int(mouseX/(2*radioW))
 
 def DrawFirstToken():
-    # print("drawFirstToken")
     colMouse = GetColumnOfMouse()
     if turn == YELLOW:
         pygame.draw.ellipse(screen, (255,233,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
@@ -99,13 +89,11 @@ def AddNewToken(events):
             lastRowToken = GetLastRowWithoutToken(colMouse)
             
             if lastRowToken == None:
-                return #Column full
+                return
             
             board[lastRowToken][colMouse] = YELLOW if turn == YELLOW else RED
             CheckWinner((lastRowToken,colMouse))    
-            print("w ",winner)        
             if winner != None or CheckFullBoard():
-                print("Hay winner")
                 gameOver = True
             turn = RED if turn == YELLOW else YELLOW           
 
@@ -119,13 +107,9 @@ def CheckRowWinner(row):
     global winner
     try:
         for i in range(cols-3):
-            print(board[row][i:i+4])
-            print(turn)
             if board[row][i:i+4].count(turn) == 4:
-                print("ROW GANADOR")
                 winner = turn
                 return
-        print("ROW NOT YET")
     except Exception as error:
          logger.exception(error)
 
@@ -136,10 +120,8 @@ def CheckColumnWinner(column):
         col = GetColumn(column)
         for i in range(len(col)-3):
             if col[i:i+4].count(turn) == 4:
-                print("COL GANADOR")
                 winner = turn
                 return
-        print("COL NOT YET")
     except Exception as error:
          logger.exception(error)
 
@@ -152,10 +134,8 @@ def CheckIncreasingDiagonalWinner(pos):
             board[element[0]][element[1]] == board[element[0]-1][element[1]+1] and
             board[element[0]][element[1]] == board[element[0]-2][element[1]+2] and
             board[element[0]][element[1]] == board[element[0]-3][element[1]+3]):
-                print("INCREASING DIAGONAL GANADOR")
                 winner = turn
                 return
-        print("INCREASING DIAGONAL NOT YET")
     except Exception as error:
          logger.exception(error)
 
@@ -168,10 +148,8 @@ def CheckDecreasingDiagonalWinner(pos):
             board[element[0]][element[1]] == board[element[0]+1][element[1]+1] and
             board[element[0]][element[1]] == board[element[0]+2][element[1]+2] and
             board[element[0]][element[1]] == board[element[0]+3][element[1]+3]):
-                print("DECREASING DIAGONAL GANADOR")
                 winner = turn
                 return
-        print("DECREASING DIAGONAL NOT YET")
     except Exception as error:
          logger.exception(error)
 
@@ -203,9 +181,6 @@ def DrawEndGame():
         screen.blit(textVictory, (rectTexto.center[0]-textVictory.get_rect()[2]/2, rectTexto.center[1]))
     else:            
         screen.blit(textDraw, (rectTexto.center[0]-textDraw.get_rect()[2]/2, rectTexto.center[1]))
-
-    print("GAME OVER")
-    print(f"EL GANADOR ES {winner}")
 
 def GameLoop():
     global winner, gameOver, run
