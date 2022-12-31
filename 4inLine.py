@@ -44,8 +44,7 @@ def DrawBoard():
                 pygame.draw.ellipse(screen, (255,0,0), (2*j*radioW,2*(i+1)*radioH,2*radioW,2*radioH))
 
 def CheckPygameExitAndResize(events):
-    global run, fontsizeGameOver, fontsizeText, radioW, radioH, widthFinalRect, heightFinalRect
-    
+    global run, fontsizeGameOver, fontsizeText, radioW, radioH, widthFinalRect, heightFinalRect    
     for event in events:
         if event.type == pygame.QUIT:
             run = False
@@ -62,8 +61,6 @@ def CheckPygameExitAndResize(events):
             fontsizeText = int(event.w/(10*3))
 
 def GetColumnOfMouse():
-    global radioW
-
     mouse = pygame.mouse.get_pos()
     mouseX = mouse[0]
     return int(mouseX/(2*radioW))
@@ -161,25 +158,23 @@ def DrawEndGame():
     
     rectTexto = pygame.Rect(0,0,widthFinalRect,heightFinalRect)
     rectBorde = pygame.Rect(0,0,widthFinalRect+10,heightFinalRect+10)
-
-    rectTexto.center = screen_rect.center
-    rectBorde.center = screen_rect.center
+    rectTexto.center, rectBorde.center = screen_rect.center, screen_rect.center
 
     pygame.draw.rect(screen, (255,0,0), rectBorde)
     pygame.draw.rect(screen, (0,0,0), rectTexto)
 
     colorWin = (255,253,0) if winner == YELLOW else (255,0,0)
-
     textGameOver = fontGameOver.render("GAME OVER", True, (255,255,255))
     textInstructions = fontText.render("Press SPACE or CLICK to restart", True, (255,255,255))
-    textVictory = fontText.render("PLAYER {} WINS!!".format("YELLOW" if winner == 1 else "RED"), True, colorWin)
-    textDraw = fontText.render("DRAW", True, (255,255,255))
 
     screen.blit(textGameOver, (rectTexto.center[0]-textGameOver.get_rect()[2]/2, rectTexto.center[1]-textGameOver.get_rect()[3]*2))
     screen.blit(textInstructions, (rectTexto.center[0]-textInstructions.get_rect()[2]/2, rectTexto.center[1]+textGameOver.get_rect()[3]))
+    
     if winner != None:
+        textVictory = fontText.render("PLAYER {} WINS!!".format("YELLOW" if winner == 1 else "RED"), True, colorWin)
         screen.blit(textVictory, (rectTexto.center[0]-textVictory.get_rect()[2]/2, rectTexto.center[1]))
     else:            
+        textDraw = fontText.render("DRAW", True, (255,255,255))
         screen.blit(textDraw, (rectTexto.center[0]-textDraw.get_rect()[2]/2, rectTexto.center[1]))
 
 def GameLoop():
