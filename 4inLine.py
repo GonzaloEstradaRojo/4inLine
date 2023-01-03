@@ -10,11 +10,13 @@ width = 800
 radioW = (width/cols)//2
 height = (1+rows)*radioW*2
 radioH = (height/(1+rows))//2
-screen = pygame.display.set_mode((width,int(height)), pygame.RESIZABLE)
+screen = pygame.display.set_mode((width,int(height)), pygame.RESIZABLE, pygame.SRCALPHA)
 
 board = [[0 for _ in range(cols)] for i in range(rows)]
 fontsizeGameOver = width//15
 fontsizeText = width//(3*10)
+fontSize = int(width*0.09)
+font = pygame.font.Font(None, fontSize)
 widthFinalRect, heightFinalRect = width*0.5, height*0.5
 
 YELLOW, RED = 1, 2
@@ -44,7 +46,7 @@ def DrawBoard():
                 pygame.draw.ellipse(screen, (255,0,0), (2*j*radioW,2*(i+1)*radioH,2*radioW,2*radioH))
 
 def CheckPygameExitAndResize(events):
-    global run, fontsizeGameOver, fontsizeText, radioW, radioH, widthFinalRect, heightFinalRect    
+    global run, fontsizeGameOver, fontsizeText, font, fontSize, radioW, radioH, widthFinalRect, heightFinalRect    
     for event in events:
         if event.type == pygame.QUIT:
             run = False
@@ -55,23 +57,38 @@ def CheckPygameExitAndResize(events):
             widthFinalRect = width*0.4
             heightFinalRect = height*0.6
 
-            radioW = (width/cols)//2
-            radioH = (height/(rows+1))//2
+            radioW = (width/cols)/2
+            radioH = (height/(rows+1))/2
             fontsizeGameOver = int(event.w/15)
             fontsizeText = int(event.w/(10*3))
+            print(fontSize)
+            fontSize = int(event.w*0.09)
+            font = pygame.font.Font(None, fontSize)
 
 def GetColumnOfMouse():
     mouse = pygame.mouse.get_pos()
     mouseX = mouse[0]
     return int(mouseX/(2*radioW))
 
-def DrawFirstToken():
+def DrawGuideNumbers(ellipseList):
+    for i,ellipse in enumerate(ellipseList):
+        number_image = font.render(f'{i+1}', True, (0, 0, 0))
+        number_rect = number_image.get_rect()
+        number_rect.center = ellipse.center
+        screen.blit(number_image,number_rect)
+        
+def DrawFirstToken(endGame=False):
+    listEll = [pygame.draw.ellipse(screen,(50, 100, 255), ((2*i*radioW,0,2*radioW,2*radioH))) for i in range(cols)]
     colMouse = GetColumnOfMouse()
-    if turn == YELLOW:
-        pygame.draw.ellipse(screen, (255,233,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
-    elif turn == RED:
-        pygame.draw.ellipse(screen, (255,0,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
+    if(not endGame):
+        if turn == YELLOW:
+            pygame.draw.ellipse(screen, (255,233,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
+        elif turn == RED:
+            pygame.draw.ellipse(screen, (255,0,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
 
+    DrawGuideNumbers(listEll)
+
+    
 def GetLastRowWithoutToken(column):
     for i in range(rows-1,-1,-1):
         if board[i][column] == 0 :
@@ -191,13 +208,13 @@ def GameLoop():
                 DrawBoard()
                 DrawFirstToken()
                 AddNewToken(events)
-
-
             else:
                 DrawBoard()
+                DrawFirstToken(True)
                 DrawEndGame()
                 for event in events:
-                    if (pygame.key.get_pressed()[pygame.K_SPACE]) or (event.type == pygame.MOUSEBUTTONUP and event.button == 1):                
+                    if ((pygame.key.get_pressed()[pygame.K_SPACE]) 
+                    or (event.type == pygame.MOUSEBUTTONUP and event.button == 1)):
                         run = True
                         gameOver = False
                         winner = None
