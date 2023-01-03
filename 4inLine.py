@@ -14,9 +14,9 @@ screen = pygame.display.set_mode((width,int(height)), pygame.RESIZABLE, pygame.S
 
 board = [[0 for _ in range(cols)] for i in range(rows)]
 fontsizeGameOver = width//15
-fontsizeText = width//(3*10)
-fontSize = int(width*0.09)
-font = pygame.font.Font(None, fontSize)
+fontsizeEndText = width//(3*10)
+fontsizeText = int(width*0.09)
+font = pygame.font.Font(None, fontsizeText)
 widthFinalRect, heightFinalRect = width*0.5, height*0.5
 
 YELLOW, RED = 1, 2
@@ -46,7 +46,7 @@ def DrawBoard():
                 pygame.draw.ellipse(screen, (255,0,0), (2*j*radioW,2*(i+1)*radioH,2*radioW,2*radioH))
 
 def CheckPygameExitAndResize(events):
-    global run, fontsizeGameOver, fontsizeText, font, fontSize, radioW, radioH, widthFinalRect, heightFinalRect    
+    global run, fontsizeGameOver, fontsizeEndText, font, fontsizeText, radioW, radioH, widthFinalRect, heightFinalRect    
     for event in events:
         if event.type == pygame.QUIT:
             run = False
@@ -60,10 +60,10 @@ def CheckPygameExitAndResize(events):
             radioW = (width/cols)/2
             radioH = (height/(rows+1))/2
             fontsizeGameOver = int(event.w/15)
-            fontsizeText = int(event.w/(10*3))
-            print(fontSize)
-            fontSize = int(event.w*0.09)
-            font = pygame.font.Font(None, fontSize)
+            fontsizeEndText = int(event.w/(10*3))
+            print(fontsizeText)
+            fontsizeText = int(event.w*0.09)
+            font = pygame.font.Font(None, fontsizeText)
 
 def GetColumnOfMouse():
     mouse = pygame.mouse.get_pos()
@@ -87,7 +87,6 @@ def DrawFirstToken(endGame=False):
             pygame.draw.ellipse(screen, (255,0,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
 
     DrawGuideNumbers(listEll)
-
     
 def GetLastRowWithoutToken(column):
     for i in range(rows-1,-1,-1):
@@ -170,7 +169,7 @@ def CheckDecreasingDiagonalWinner(pos):
 def DrawEndGame():
     global winner, widthFinalRect, heightFinalRect
     fontGameOver = pygame.font.Font(None, fontsizeGameOver)
-    fontText = pygame.font.Font(None, fontsizeText)
+    fontText = pygame.font.Font(None, fontsizeEndText)
     screen_rect= screen.get_rect()
     
     rectTexto = pygame.Rect(0,0,widthFinalRect,heightFinalRect)
@@ -215,7 +214,6 @@ def GameLoop():
                 for event in events:
                     if ((pygame.key.get_pressed()[pygame.K_SPACE]) 
                     or (event.type == pygame.MOUSEBUTTONUP and event.button == 1)):
-                        run = True
                         gameOver = False
                         winner = None
                         ResetBoard()
