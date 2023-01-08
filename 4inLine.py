@@ -7,14 +7,16 @@ pygame.init()
 pygame.display.set_caption("4 en rayas")
 cols, rows = 10, 6
 width = 800
-radioW = (width/cols)//2
+radioW = (width/cols)/2
 height = (1+rows)*radioW*2
-radioH = (height/(1+rows))//2
+radioH = (height/(1+rows))/2
 screen = pygame.display.set_mode((width,int(height)), pygame.RESIZABLE)
 
-board = [[0 for _ in range(cols)] for i in range(rows)]
-fontsizeGameOver = width//15
-fontsizeText = width//(3*10)
+board = [[0 for _ in range(cols)] for _ in range(rows)]
+fontSizeGameOver = int(width * 0.066)
+fontSizeInstructions = int(width * 0.033)
+fontSizeNumbers = int(width * 0.075)
+
 widthFinalRect, heightFinalRect = width*0.5, height*0.5
 
 YELLOW, RED = 1, 2
@@ -44,7 +46,7 @@ def DrawBoard():
                 pygame.draw.ellipse(screen, (255,0,0), (2*j*radioW,2*(i+1)*radioH,2*radioW,2*radioH))
 
 def CheckPygameExitAndResize(events):
-    global run, fontsizeGameOver, fontsizeText, radioW, radioH, widthFinalRect, heightFinalRect    
+    global run, fontSizeGameOver, fontSizeInstructions, fontSizeNumbers, radioW, radioH, widthFinalRect, heightFinalRect    
     for event in events:
         if event.type == pygame.QUIT:
             run = False
@@ -52,18 +54,30 @@ def CheckPygameExitAndResize(events):
         if event.type == pygame.VIDEORESIZE:
             width = event.w
             height = event.h
-            widthFinalRect = width*0.4
-            heightFinalRect = height*0.6
+            widthFinalRect = width * 0.4
+            heightFinalRect = height * 0.6
 
-            radioW = (width/cols)//2
-            radioH = (height/(rows+1))//2
-            fontsizeGameOver = int(event.w/15)
-            fontsizeText = int(event.w/(10*3))
+            radioW = (width/cols)/2
+            radioH = (height/(rows+1))/2
+            fontSizeGameOver = int(event.w * 0.06)
+            fontSizeInstructions = int(event.w * 0.03)
+            fontSizeNumbers = int(event.w * 0.075)
 
 def GetColumnOfMouse():
     mouse = pygame.mouse.get_pos()
     mouseX = mouse[0]
     return int(mouseX/(2*radioW))
+
+def DrawPlaceHolderFirstTokens():
+    return [pygame.draw.ellipse(screen, (51, 137, 255), ((i*2)*radioW,0,2*radioW,2*radioH)) for i in range(cols)]
+
+def DrawColumnNumbers(lista):
+    font = pygame.font.Font(None, fontSizeNumbers)
+    for i in range(len(lista)):
+        number_image = font.render(f'{i+1}', True, (0, 0, 0))
+        number_rect = number_image.get_rect()
+        number_rect.center = lista[i].center
+        screen.blit(number_image, number_rect)
 
 def DrawFirstToken():
     colMouse = GetColumnOfMouse()
@@ -71,6 +85,7 @@ def DrawFirstToken():
         pygame.draw.ellipse(screen, (255,233,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
     elif turn == RED:
         pygame.draw.ellipse(screen, (255,0,0), ((colMouse*2)*radioW,0,2*radioW,2*radioH))
+    
 
 def GetLastRowWithoutToken(column):
     for i in range(rows-1,-1,-1):
@@ -152,8 +167,8 @@ def CheckDecreasingDiagonalWinner(pos):
 
 def DrawEndGame():
     global winner, widthFinalRect, heightFinalRect
-    fontGameOver = pygame.font.Font(None, fontsizeGameOver)
-    fontText = pygame.font.Font(None, fontsizeText)
+    fontGameOver = pygame.font.Font(None, fontSizeGameOver)
+    fontText = pygame.font.Font(None, fontSizeInstructions)
     screen_rect= screen.get_rect()
     
     rectTexto = pygame.Rect(0,0,widthFinalRect,heightFinalRect)
@@ -189,12 +204,14 @@ def GameLoop():
             CheckPygameExitAndResize(events)
             if not gameOver:
                 DrawBoard()
+                firstTokens = DrawPlaceHolderFirstTokens()
                 DrawFirstToken()
+                DrawColumnNumbers(firstTokens)
                 AddNewToken(events)
-
-
             else:
                 DrawBoard()
+                firstTokens = DrawPlaceHolderFirstTokens()
+                DrawColumnNumbers(firstTokens)
                 DrawEndGame()
                 for event in events:
                     if (pygame.key.get_pressed()[pygame.K_SPACE]) or (event.type == pygame.MOUSEBUTTONUP and event.button == 1):                
@@ -205,7 +222,6 @@ def GameLoop():
                         GameLoop()
             
             pygame.display.update()
-
 
     except Exception as error:
          logger.exception(error)
