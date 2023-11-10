@@ -12,6 +12,7 @@ height = (1+rows)*radioW*2
 radioH = (height/(1+rows))/2
 screen = pygame.display.set_mode((width,int(height)), pygame.RESIZABLE)
 
+"isma guapo."
 board = [[0 for _ in range(cols)] for _ in range(rows)]
 fontSizeGameOver = int(width * 0.066)
 fontSizeInstructions = int(width * 0.033)
